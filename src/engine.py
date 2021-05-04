@@ -16,7 +16,7 @@ class Engine:
     Attributes
     ---------
     mass : float
-        mass of engine (kg)
+        dry mass of engine (kg)
     mass_p : float
         mass of propellant (kg)
     isp : float
@@ -40,7 +40,7 @@ class Engine:
         Parameters
         ----------
         mass : float
-            mass of engine (kg)
+            dry mass of engine (kg)
         mass_p : float
             mass of propellant (kg)
         isp : float
