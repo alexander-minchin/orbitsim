@@ -57,3 +57,4 @@ class Environment:
     	self.cb_radius = celestial_body_dict['radius_m']
     	self.cb_J2 = celestial_body_dict['J2']
     	self.cb_atm_rot = celestial_body_dict['atm_rot_vec_rad_p_s']
+    	
