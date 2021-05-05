@@ -22,16 +22,14 @@ class Orbit:
     def __init__(
             self,
             spacecraft,
+            environment,
             tspan,
-            dt,
-            koe=True,
-            deg=True
+            dt
     ):
-
+        self.spacecraft = spacecraft
+        self.environment = environment
         self.tspan = tspan
         self.dt = dt
-        self.cb = cb
-        self.deg = deg
 
         # convert keplerian orbital elements to orbital state vector if necessary
         if koe:
