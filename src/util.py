@@ -9,7 +9,7 @@ from mayavi import mlab
 import random
 
 
-def plot_n_orbits(rs,environment,show_plot=False,save_plot=False,title='No Title'
+def plot_n_orbits(orbits,environment,show_plot=True,save_plot=False,title='No Title'
 				 ,show_body=True):
 	'''
 	creates a 3D plot from the input rs list, containing x, y, and z positions
@@ -19,9 +19,13 @@ def plot_n_orbits(rs,environment,show_plot=False,save_plot=False,title='No Title
 
 	r_plot = environment.cb_radius
 
+	rs = []
+	for orbit in orbits:
+		rs.append(orbit.rs)
+
 	if show_body:
 	# Plot central body
-		plot_earth()
+		plot_body(environment)
 
 
 	# plot the x,y,z vectors
@@ -33,12 +37,9 @@ def plot_n_orbits(rs,environment,show_plot=False,save_plot=False,title='No Title
 	# Check for custom axes limits
 	max_val = np.max(np.abs(rs))
 
-
 	# Plot trajectory and starting point
 	for r in rs:
-		mlab.plot3d([r[0,0],r[1,0]],[r[0,1],r[1,1]],[r[0,2],r[1,2]],
-										color=(1,1,1),
-										tube_radius=None)
+		# print(r)
 		mlab.plot3d(r[:,0],r[:,1],r[:,2],color = (random.uniform(0.2, 1),
 					random.uniform(0.2, 1),random.uniform(0.2, 1)),
 										tube_radius=None)
@@ -237,14 +238,14 @@ def chunks(lst, n):
     for i in range(0, len(lst), n):
         yield lst[i:i + n]
 
-def plot_earth():
+def plot_body(environment):
 	# Display continents outline, using the VTK Builtin surface 'Earth'
 	from mayavi.sources.builtin_surface import BuiltinSurface
 	continents_src = BuiltinSurface(source='earth', name='Continents')
 	# The on_ratio of the Earth source controls the level of detail of the
 	# continents outline.
 	continents_src.data_source.on_ratio = 2
-	continents_src.data_source.radius = pd.earth['radius']
+	continents_src.data_source.radius = environment.cb_radius
 	continents = mlab.pipeline.surface(continents_src, color=(0, 0, 0))
 
 	# Display a sphere, for the surface of the Earth
