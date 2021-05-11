@@ -3,13 +3,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import kepler as kp
-import planetary_data as pd
+import environment
 import datetime
 from mayavi import mlab
 import random
 
 
-def plot_n_orbits(rs,cb=pd.earth,show_plot=False,save_plot=False,title='No Title'
+def plot_n_orbits(rs,environment,show_plot=False,save_plot=False,title='No Title'
 				 ,show_body=True):
 	'''
 	creates a 3D plot from the input rs list, containing x, y, and z positions
@@ -17,7 +17,7 @@ def plot_n_orbits(rs,cb=pd.earth,show_plot=False,save_plot=False,title='No Title
 	mlab.figure(1, bgcolor=(0, 0, 0), fgcolor=(0.8, 0.8, 0.8),size=(800, 400))
 	mlab.clf()
 
-	r_plot = cb['radius']
+	r_plot = environment.cb_radius
 
 	if show_body:
 	# Plot central body
@@ -71,7 +71,7 @@ def plot_n_orbits(rs,cb=pd.earth,show_plot=False,save_plot=False,title='No Title
 	if save_plot:
 		mlab.savefig(title+'.png',dpi=300)
 
-def osv2koe(osv, mu=pd.earth['mu']):
+def osv_to_koe(osv, mu):
 	'''
 	input an orbital state vector
 	returns a corresponding vector of keplerian orbital elements
@@ -99,12 +99,13 @@ def osv2koe(osv, mu=pd.earth['mu']):
 	koe = a, e, i, lan, ap, ta
 	return koe
 
-def koe2osv(koe, deg=False, mu=pd.earth['mu']):
+def koe_to_osv(koe, mu, deg=True):
 	'''
 	input a vector of keplerian orbital elements
 	returns the corresponding orbital state vector
 	'''
 	a, e, i, lan, ap, ta = koe
+
 	if deg:
 		np.radians(i)
 		np.radians(lan)
@@ -131,7 +132,7 @@ def koe2osv(koe, deg=False, mu=pd.earth['mu']):
 	osv = x, y, z, u, v, w
 	return osv
 
-def tle2koe(tle_filename,mu=pd.earth['mu']):
+def tle_to_koe(tle_filename,mu):
 	'''
 	input a file containing a single set wo-line elements
 	returns a the keplerian orbital elements
@@ -167,12 +168,12 @@ def tle2koe(tle_filename,mu=pd.earth['mu']):
 
 	return a, e, i, lan, ap, ta, [year, month, day, hour]
 
-def tle2osv(tle_filname):
+def tle_to_osv(tle_filname):
 	'''
 	input a file containing a single set of two-line elements
 	returns an orbital state vector
 	'''
-	return koe2osv(tle2koe(tle_filename), deg=True)
+	return koe_to_osv(tle2koe(tle_filename), deg=True)
 
 def calc_epoch(epoch):
 	year = int('20' + epoch[:2])
@@ -186,7 +187,7 @@ def calc_epoch(epoch):
 	
 	return year, month, day, hour
 
-def tles2koes(tle_filename,mu=pd.earth['mu']):
+def tles_to_koes(tle_filename,mu):
 	'''
 	input a file containing sets of two-line elements
 	returns a list of sets of keplerian orbital elements
@@ -248,7 +249,7 @@ def plot_earth():
 
 	# Display a sphere, for the surface of the Earth
 
-	sphere = mlab.points3d(0, 0, 0, pd.earth['radius'], 
+	sphere = mlab.points3d(0, 0, 0, environment.cb_radius, 
 									scale_mode='scalar',
 	                                scale_factor=2,
 	                                color=(0.67, 0.77, 0.93),
@@ -262,9 +263,9 @@ def plot_earth():
 	# Plot the equator and the tropiques
 	theta = np.linspace(0, 2 * np.pi, 100)
 	for angle in (- np.pi / 6, 0, np.pi / 6):
-	    x = pd.earth['radius']*np.cos(theta) * np.cos(angle)
-	    y = pd.earth['radius']*np.sin(theta) * np.cos(angle)
-	    z = pd.earth['radius']*np.ones_like(theta) * np.sin(angle)
+	    x = environment.cb_radius*np.cos(theta) * np.cos(angle)
+	    y = environment.cb_radius*np.sin(theta) * np.cos(angle)
+	    z = environment.cb_radius*np.ones_like(theta) * np.sin(angle)
 
 	    mlab.plot3d(x, y, z, color=(0,0,0),
 	                        opacity=1, tube_radius=None)

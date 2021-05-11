@@ -4,7 +4,7 @@
 
 import numpy as np
 from scipy.integrate import ode
-from . import tools as t
+import util as ut
 import pyatmos as atm
 import mayavi as mya
 
@@ -32,25 +32,40 @@ class Orbit:
         self.dt = dt
 
         # convert keplerian orbital elements to orbital state vector if necessary
-        if koe:
-            y0 = t.koe_to_osv(y0, deg=deg, mu=cb['mu'])
+        if self.spacecraft.state_format == 'koe':
+            self.spacecraft.set_state0(ut.koe_to_osv(
+                self.spacecraft.state0,self.environment.cb_mu))
 
         # calculate number of steps required
-        n_steps = int(np.ceil(tspan/dt))
+        self.n_steps = int(np.ceil(self.tspan/self.dt))
 
         # allocate memory for time and state arrays
-        ts = np.zeros(n_steps,1)
-        ys = np.zeros(n_steps,6)
+        self.ts = np.zeros((self.n_steps,1))
+        self.ys = np.zeros((self.n_steps,6))
 
         # initial conditions
-        ys[0] = y0
-        step = 1
+        self.ys[0] = self.spacecraft.state0
+        self.step = 1
 
         # set up solver
-        solver = ode(diff_y).set_integrator('lsoda')
-        solver.set_initial_value(y0,ts[0])
+        self.solver = ode(self.diff_y)
+        self.solver.set_integrator('lsoda')
+        self.solver.set_initial_value(self.ys[0],self.ts[0])
 
-        solve.orbit()
+        self.solve_orbit()
+
+
+    def solve_orbit(self):
+        # propagate the orbit
+        while self.solver.successful() and self.step < self.n_steps:
+            self.solver.integrate(self.solver.t+self.dt)
+            self.ts[self.step] = self.solver.t
+            self.ys[self.step] = self.solver.y
+            self.step+=1
+
+        self.rs = self.ys[:,:3]
+        self.vs = self.ys[:,3:]
+
 
     def diff_y(self,t,y):
 
@@ -59,32 +74,32 @@ class Orbit:
         r_norm = np.linalg.norm(r)
 
         # two body acceleration
-        a = -r*self.cb['mu'] / r_norm**3
+        a = -r*self.environment.cb_mu / r_norm**3
 
         # constant thrust
-            if self.perts['constant_thrust']:
-                v_dir = v/np.linalg.norm(v)
-                a_thrust = 6e-5*v_dir
+        if "thrust" in self.environment.perturbations:
+            v_dir = v/np.linalg.norm(v)
+            a_thrust = v_dir * self.spacecraft.engine.thrust/self.spacecraft.mass_total
 
-                a+= a_thrust
+            a+= a_thrust
 
         # aerodynamic drag
-        if self.perts['aero']:
+        if 'aero' in self.environment.perturbations:
             #calculate air density
-            z = r_norm - self.cb['radius']  # km
+            z = r_norm - self.environment.cb_radius  # km
 
             rho = atm.coesa76(z)[0][0]*1e9  # kg / km^3
 
             #calculate motion of s/c wrt a rotating atmosphere
-            v_rel = v - np.cross(self.cb['atm_rot_vec'],r)
+            v_rel = v - np.cross(self.environment.cb_atm_rot,r)
 
-            drag = 0.5 * rho * v_rel*np.linalg.norm(v_rel) * spacecraft.Cd
-                 * spacecraft.A / self.mass
+            drag = 0.5 * rho * v_rel*np.linalg.norm(v_rel) * self.spacecraft.drag_coeff\
+            * self.spacecraft.area / self.spacecraft.mass_total
 
             a += drag
 
         # J2 perturbation
-        if self.perts['J2']:
+        if 'J2' in self.environment.perturbations:
 
             z2 = r[2]**2
             r2 = r_norm**2
@@ -92,9 +107,10 @@ class Orbit:
             ty = r[1] / r_norm*(5*z2/r2 -1)
             tz = r[2] / r_norm*(5*z2/r2 -3)
 
-            a_j2 = 1.5*self.cb['J2']*self.cb['mu'] * self.cb['radius']**2
-                 / r_norm**4 * np.array([tx, ty, tz])
+            a_j2 = 1.5*self.environment.cb_J2*self.environment.cb_mu\
+            * self.environment.cb_radius**2 / r_norm**4 * np.array([tx, ty, tz])
 
             a += a_j2
 
-        return v + a
+        return np.concatenate([v,a])
+

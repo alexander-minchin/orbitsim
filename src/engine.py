@@ -23,7 +23,7 @@ class Engine:
         the specific impulse of the engine (N*s/kg)
     thrust : float
         thrust produced by the enginer (N)
-    mass_dot : float
+    mass_p_dot : float
         time derivative of proellant mass (kg/s)
     burnout_time : float
         time till all propellant is burnt (s)
@@ -32,9 +32,9 @@ class Engine:
     def __init__(
             self,
             mass,
-            mass_p,
-            isp,
-            thrust
+            mass_p=0,
+            isp=0,
+            thrust=0
     ):
         """
         Parameters
@@ -56,22 +56,23 @@ class Engine:
         self.thrust = thrust
 
         # attributes to be calculated
-        self.mass_dot = self.calculate_mass_dot()
-        self.burnout_time = self.calculate_burnout_time()
+        if self.thrust > 0:
+            self.mass_dot = self.calculate_mass_dot()
+            self.burnout_time = self.calculate_burnout_time()
 
     def calculate_mass_dot(self):
         """ calculates and returns the time derivative of proellant mass (kg/s)"""
 
         #calculate m dot
-        self.mass_dot = self.thrust / (const.g * self.isp)
+        self.mass_p_dot = self.thrust / (const.g * self.isp)
 
-        return self.mass_dot
+        return self.mass_p_dot
 
     def calculate_burnout_time(self):
         """ calculates the time till all propellant is burnt (s)"""
 
         #calculate burnout time
-        self.burnout_time = self.mass_p / self.mass_dot
+        self.burnout_time = self.mass_p / self.mass_p_dot
 
         return self.burnout_time
 

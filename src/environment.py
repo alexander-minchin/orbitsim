@@ -20,14 +20,14 @@ class Environment:
 	celestial_body : String
     	name of celestrial body that has been defined in
     	celestial_bodies.json
-    purturbations : list
-    	list of purturbations to be included in the simulation
+    perturbations : list
+    	list of perturbations to be included in the simulation
     """
 
     def __init__(
             self,
             celestial_body,
-            purturbations
+            perturbations=[]
     ):
 
 	    """
@@ -36,13 +36,13 @@ class Environment:
 	        celestial_body : String
 	        	name of celestrial body that has been defined in
 	        	celestial_bodies.json
-	        purturbations : list
-	        	list of purturbations to be included in the simulation
+	        perturbations : list
+	        	list of perturbations to be included in the simulation
 	        	['thrust', 'aero', 'J2']
 	    """
 
 	    self.celestial_body = celestial_body
-	    self.purturbations = purturbations
+	    self.perturbations = perturbations
 
 	    self.get_celestial_body()
 
@@ -62,4 +62,4 @@ class Environment:
     	self.cb_atm_rot = celestial_body_dict['atm_rot_vec_rad_p_s']
 
     	# calculate parameters
-    	self.cb_mu = const.G * self.cb_mass
+    	self.cb_mu = const.G * self.cb_mass # m^3 kg^-1 s^-2
