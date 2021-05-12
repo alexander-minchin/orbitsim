@@ -22,6 +22,7 @@ class Environment:
     	celestial_bodies.json
     perturbations : list
     	list of perturbations to be included in the simulation
+    	['thrust', 'aero', 'J2']
     """
 
     def __init__(

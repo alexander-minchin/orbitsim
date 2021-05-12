@@ -16,8 +16,15 @@ class Orbit:
 
     Attributes
     ---------
+    spacecraft : Spacecraft
+        the spacecraft that will have its orbit calculated
+    environment : Environment
+        the environment settings for the simulation
+    tspan : int
+        span of time that the simulation runs for
+    dt : int
+        time step for the simulation
     """
-
 
     def __init__(
             self,

@@ -18,7 +18,7 @@ setup(
     long_description=readme,
     author='Alexander Minchin',
     author_email='alexander.w.minchin@gmail.com',
-    url='',
+    url='https://github.com/alexander-minchin/orbitsim',
     license=license,
     packages=find_packages(exclude=('tests', 'docs'))
 )
