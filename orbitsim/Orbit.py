@@ -4,9 +4,10 @@
 
 import numpy as np
 from scipy.integrate import ode
-import util as ut
 import pyatmos as atm
 import mayavi as mya
+
+from . import util as ut
 
 class Orbit:
     """

@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 
 import numpy as np
-import matplotlib.pyplot as plt
 import kepler as kp
-import environment
 import datetime
 from mayavi import mlab
 import random
 
+from .Environment import Environment
 
 def plot_n_orbits(orbits,environment,show_plot=True,save_plot=False,title='No Title'
 				 ,show_body=True):

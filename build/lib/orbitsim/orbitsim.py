@@ -1,6 +1,10 @@
 
 
-import environment, engine, spacecraft, orbit 
+from .Environment import Environment
+from .Engine import Engine
+from .Spacecraft import Spacecraft
+from .Orbit import Orbit
+
 import util as t
 import numpy as np
 
